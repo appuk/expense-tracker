@@ -16,7 +16,7 @@ def add_expense(request):
             # redirect to a new URL:
             expense = Expense(**form.cleaned_data)
             expense.save()
-            return render(request, 'add_expense.html', {'form': form, 'message':'Data was submitted.'})
+            return render(request, 'add_expense.html', {'form': form, 'message':'Data was submitted. Yes!!'})
 
     # if a GET (or any other method) we'll create a blank form
     else:
