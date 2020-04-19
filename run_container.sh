@@ -14,8 +14,8 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
 fi
 # run postgres container
 docker run --rm -p 5432:5432 -d  --network=django_network \
- -h 'postgres' \
- --net-alias postgres \
+ -h 'postgresql' \
+ --net-alias postgresql \
  -e POSTGRES_PASSWORD=pwd \
  -e POSTGRES_USER=user \
  -e POSTGRES_DB=expenseDB \
