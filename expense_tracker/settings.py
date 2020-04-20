@@ -25,8 +25,7 @@ SECRET_KEY = '3(3=k=4=w^!xda7nxw2u2vte^*kgu4*a6yhj($2%0es%)xpig7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -80,8 +79,10 @@ DATABASES = {
         'NAME': 'expenseDB',
         'USER': 'user',
         'PASSWORD': 'pwd',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',    }
+        'HOST': 'postgresql',
+        # 'HOST': '127.0.0.1',
+        'PORT': '5432'
+    }
 }
 
 
