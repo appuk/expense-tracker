@@ -79,7 +79,7 @@ DATABASES = {
         'NAME': 'expenseDB',
         'USER': 'user',
         'PASSWORD': 'pwd',
-        'HOST': 'postgres',
+        'HOST': 'postgresql',
         'PORT': '5432',    }
 }
 

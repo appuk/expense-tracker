@@ -6,6 +6,7 @@ COPY requirements.txt /code/
 RUN pip install -r requirements.txt
 COPY . /code/
 EXPOSE 8000
+RUN chown 1001:1001 /code
 USER 1001
 ENTRYPOINT python manage.py makemigrations \
  && python manage.py migrate \
