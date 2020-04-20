@@ -1,0 +1,308 @@
+kind: Template
+apiVersion: template.openshift.io/v1
+metadata:
+  name: expense-tracker
+  annotations:
+    openshift.io/display-name: "Expense Tracker"
+    description: "Expense Tracker Template"
+labels:
+  template: "expense-tracker"
+  app: "${NAME}"
+parameters:
+  - name: NAME
+    description: "The name for App"
+    value: expense-tracker-app
+  - name: GITHUB_URL
+    description: "GitHub URL of the project"
+  - name: GITHUB_REF
+    description: "Name of the branch to build from"
+    value: master
+  - name: POSTGRESQL_USER
+    value: user
+    description: "User for postgresql login-do not change as it is static in settings.py"  # TODO: Fix that
+  - name: POSTGRESQL_PASSWORD
+    value: pwd
+    description: "Password for postgresql login-do not change as it is static in settings.py"  # TODO: Fix that
+  - name: NAMESPACE
+    required: true
+    description: "The OpenShift Namespace where the ImageStream resides."
+objects:
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    metadata:
+      annotations:
+        template.alpha.openshift.io/wait-for-ready: 'true'
+      generation: 2
+      labels:
+        app: postgresql-persistent
+        template: postgresql-persistent-template
+      name: postgresql
+      namespace: postgresql
+      resourceVersion: '117203'
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 10
+      selector:
+        name: postgresql
+      strategy:
+        activeDeadlineSeconds: 21600
+        recreateParams:
+          timeoutSeconds: 600
+        resources: {}
+        type: Recreate
+      template:
+        metadata:
+          creationTimestamp: null
+          labels:
+            name: postgresql
+        spec:
+          containers:
+            - env:
+                - name: POSTGRESQL_USER
+                  value: "${POSTGRESQL_USER}"
+                - name: POSTGRESQL_PASSWORD
+                  value: "${POSTGRESQL_PASSWORD}"
+                - name: POSTGRESQL_DATABASE
+                  value: expenseDB
+              image: >-
+                openshift/postgresql
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                exec:
+                  command:
+                    - /usr/libexec/check-container
+                    - '--live'
+                failureThreshold: 3
+                initialDelaySeconds: 120
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 10
+              name: postgresql
+              ports:
+                - containerPort: 5432
+                  protocol: TCP
+              readinessProbe:
+                exec:
+                  command:
+                    - /usr/libexec/check-container
+                failureThreshold: 3
+                initialDelaySeconds: 5
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 1
+              resources:
+                limits:
+                  memory: 512Mi
+              securityContext:
+                capabilities: {}
+                privileged: false
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+              volumeMounts:
+                - mountPath: /var/lib/pgsql/data
+                  name: postgresql-data
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          schedulerName: default-scheduler
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+          volumes:
+            - name: postgresql-data
+              persistentVolumeClaim:
+                claimName: postgresql
+      test: false
+      triggers:
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - postgresql
+            from:
+              kind: ImageStreamTag
+              name: 'postgresql:9.6'
+              namespace: openshift
+            lastTriggeredImage: >-
+              openshift/postgresql
+          type: ImageChange
+        - type: ConfigChange
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        template.openshift.io/expose-uri: 'postgres://{.spec.clusterIP}:{.spec.ports[?(.name=="postgresql")].port}'
+      labels:
+        app: postgresql-persistent
+        template: postgresql-persistent-template
+      name: postgresql
+      namespace: postgresql
+      resourceVersion: '117105'
+    spec:
+      ports:
+        - name: postgresql
+          port: 5432
+          protocol: TCP
+          targetPort: 5432
+      selector:
+        name: postgresql
+      sessionAffinity: None
+      type: ClusterIP
+    status:
+      loadBalancer: {}
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      finalizers:
+      - kubernetes.io/pvc-protection
+      labels:
+        app: postgresql-persistent
+        template: postgresql-persistent-template
+      name: postgresql
+      resourceVersion: "117113"
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+  - apiVersion: build.openshift.io/v1
+    kind: BuildConfig
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftWebConsole
+      labels:
+        app: "${NAME}"
+      name: "${NAME}"
+      resourceVersion: '125704'
+    spec:
+      nodeSelector: null
+      output:
+        to:
+          kind: ImageStreamTag
+          name: "${NAME}:latest"
+      postCommit: {}
+      resources: {}
+      runPolicy: Serial
+      source:
+        git:
+          ref: "${GITHUB_REF}"
+          uri: "${GITHUB_URL}"
+        type: Git
+      strategy:
+        sourceStrategy:
+          from:
+            kind: ImageStreamTag
+            name: 'python:3.6'
+            namespace: openshift
+        type: Source
+      triggers:
+        - generic:
+            secret: adf730bbc4820684
+          type: Generic
+        - github:
+            secret: 7b7cde8d44fd8c3d
+          type: GitHub
+        - imageChange:
+            lastTriggeredImageID: >-
+              openshift/python
+          type: ImageChange
+        - type: ConfigChange
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    metadata:
+      generation: 3
+      labels:
+        app: "${NAME}"
+      name: "${NAME}"
+      resourceVersion: '126735'
+    spec:
+      replicas: 1
+      selector:
+        deploymentconfig: "${NAME}"
+      strategy:
+        activeDeadlineSeconds: 21600
+        resources: {}
+        rollingParams:
+          intervalSeconds: 1
+          maxSurge: 25%
+          maxUnavailable: 25%
+          timeoutSeconds: 600
+          updatePeriodSeconds: 1
+        type: Rolling
+      template:
+        metadata:
+          creationTimestamp: null
+          labels:
+            app: "${NAME}"
+            deploymentconfig: "${NAME}"
+        spec:
+          containers:
+            - image: >-
+                ${NAMESPACE}/${NAME}:latest
+              imagePullPolicy: Always
+              name: ${NAME}
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              resources: {}
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          schedulerName: default-scheduler
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+      test: false
+      triggers:
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - ${NAME}
+            from:
+              kind: ImageStreamTag
+              name: '${NAME}:latest'
+              namespace: ${NAMESPACE}
+          type: ImageChange
+        - type: ConfigChange
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: "${NAME}"
+      name: "${NAME}"
+      resourceVersion: '125696'
+    spec:
+      ports:
+        - name: 8080-tcp
+          port: 8080
+          protocol: TCP
+          targetPort: 8080
+      selector:
+        deploymentconfig: "${NAME}"
+      type: ClusterIP
+    status:
+      loadBalancer: {}
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      labels:
+        app: "${NAME}"
+      name: "${NAME}"
+      resourceVersion: '125703'
+    spec:
+      port:
+        targetPort: 8080-tcp
+      to:
+        kind: Service
+        name: "${NAME}"
+        weight: 100
+      wildcardPolicy: None
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      generation: 1
+      labels:
+        app: "${NAME}"
+      name: "${NAME}"
+      resourceVersion: '132481'
+    spec:
+      lookupPolicy:
+        local: false
