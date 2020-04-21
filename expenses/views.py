@@ -7,19 +7,9 @@ from .models import Expense
 def add_expense(request):
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
-        # create a form instance and populate it with data from the request:
-        form = ExpenseForm(request.POST)
-        # check whether it's valid:
-        if form.is_valid():
-            # process the data in form.cleaned_data as required
-            # ...
-            # redirect to a new URL:
-            expense = Expense(**form.cleaned_data)
-            expense.save()
-            return render(request, 'add_expense.html', {'form': form, 'message':'Data was submitted. Yes!!'})
-
-    # if a GET (or any other method) we'll create a blank form
+        data = request.POST
+        expense = Expense(date=data['date'], name=data['name'], category=data['category'], tax=data['tax'], tip=data['tip'], total=data['total'], comments=data['comments'])
+        expense.save()
+        return render(request, 'add_expense.html', {'message':'Expense added!!'})
     else:
-        form = ExpenseForm()
-
-    return render(request, 'add_expense.html', {'form': form})
+        return render(request, 'add_expense.html')
