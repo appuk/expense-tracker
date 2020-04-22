@@ -33,7 +33,7 @@
           </label>
           <div class="pf-c-form__horizontal-group">
             <select class="pf-c-form-control" id="category" name="category">
-              <option selected>Please choose</option>
+              <option value='' selected>Please choose</option>
               <option value="House">House</option>
               <option value="Car">Car</option>
               <option value="Groceries">Groceries</option>
@@ -81,7 +81,23 @@
         <div class="pf-c-form__group pf-m-action">
           <div class="pf-c-form__horizontal-group">
             <div class="pf-c-form__actions pf-c-card__footer">
-              {{ message }}
+              {% if message == "Expense added!!"%}
+                <div class="pf-c-alert pf-m-success" aria-label="Success alert">
+                  <div class="pf-c-alert__icon">
+                    <i class="fas fa-check-circle" aria-hidden="true"></i>
+                  </div>
+                  <h4 class="pf-c-alert__title">
+                    <span class="pf-screen-reader">Success alert:</span>Expense added!!</h4>
+                </div>
+              {% elif 'Invalid' in message %}
+                <div class="pf-c-alert pf-m-warning" aria-label="Warning alert">
+                  <div class="pf-c-alert__icon">
+                    <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                  </div>
+                  <h4 class="pf-c-alert__title">
+                    <span class="pf-screen-reader">Warning alert:</span>{{ message }}</h4>
+                </div>
+              {% endif %}
               <input class="pf-c-button pf-m-primary pf-m-block" type="submit" value="Submit Form">
             </div>
           </div>
