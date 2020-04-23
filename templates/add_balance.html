@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+<div style="padding-left: 25%; padding-right: 25%; padding-top: 1%; padding-bottom: 5%; background-image: url('{% static "back-image3.jpg" %}'); background-repeat: no-repeat; background-attachment: fixed; background-size: cover;">
+  <div class="pf-c-card" style="padding: 5%;">
+    <h1 class="pf-c-card__header pf-c-title pf-m-4xl" style="text-align: center;">Add Balance</h1>
+    <br>
+    <div class="pf-c-card__body">
+      <form novalidate class="pf-c-form pf-m-horizontal" action="/balances/" method="post">
+        {% csrf_token %}
+        <div class="pf-c-form__group">
+          <label class="pf-c-input-group__text" for="month">
+            <span class="pf-c-form__label-text">Month</span>
+            <span class="pf-c-form__label-required" aria-hidden="true">&#42;</span>
+          </label>
+          <div class="pf-c-form__horizontal-group">
+            <input class="pf-c-form-control" type="date" id="month" name="month" aria-label="Date input example" />
+          </div>
+        </div>
+        <div class="pf-c-form__group">
+          <label class="pf-c-form__label" for="bofa1">
+            <span class="pf-c-form__label-text">Apurva's Bofa</span>
+            <span class="pf-c-form__label-required" aria-hidden="true">&#42;</span>
+          </label>
+          <div class="pf-c-form__horizontal-group">
+            <input class="pf-c-form-control" required type="number" id="bofa1" name="bofa1" aria-describedby="horizontal-form-name-helper2" />
+          </div>
+        </div>
+        <div class="pf-c-form__group">
+          <label class="pf-c-form__label" for="bofa2">
+            <span class="pf-c-form__label-text">Kedar's Bofa</span>
+            <span class="pf-c-form__label-required" aria-hidden="true">&#42;</span>
+          </label>
+          <div class="pf-c-form__horizontal-group">
+            <input class="pf-c-form-control" required type="number" id="bofa2" name="bofa2" aria-describedby="horizontal-form-name-helper2" />
+          </div>
+        </div>
+        <div class="pf-c-form__group">
+          <label class="pf-c-form__label" for="pnc">
+            <span class="pf-c-form__label-text">PNC</span>
+            <span class="pf-c-form__label-required" aria-hidden="true">&#42;</span>
+          </label>
+          <div class="pf-c-form__horizontal-group">
+            <input class="pf-c-form-control" required type="number" id="pnc" name="pnc" aria-describedby="horizontal-form-name-helper2" />
+          </div>
+        </div>
+        <div class="pf-c-form__group">
+          <label class="pf-c-form__label" for="dcu">
+            <span class="pf-c-form__label-text">DCU</span>
+            <span class="pf-c-form__label-required" aria-hidden="true">&#42;</span>
+          </label>
+          <div class="pf-c-form__horizontal-group">
+            <input class="pf-c-form-control" required type="number" id="dcu" name="dcu" aria-describedby="horizontal-form-name-helper2" />
+          </div>
+        </div>
+        <div class="pf-c-form__group">
+          <label class="pf-c-form__label" for="fidelity">
+            <span class="pf-c-form__label-text">Fidelity</span>
+            <span class="pf-c-form__label-required" aria-hidden="true">&#42;</span>
+          </label>
+          <div class="pf-c-form__horizontal-group">
+            <input class="pf-c-form-control" required type="number" id="fidelity" name="fidelity" aria-describedby="horizontal-form-name-helper2" />
+          </div>
+        </div>
+        <div class="pf-c-form__group">
+          <label class="pf-c-form__label" for="coastal">
+            <span class="pf-c-form__label-text">Coastal</span>
+            <span class="pf-c-form__label-required" aria-hidden="true">&#42;</span>
+          </label>
+          <div class="pf-c-form__horizontal-group">
+            <input class="pf-c-form-control" required type="number" id="coastal" name="coastal" aria-describedby="horizontal-form-name-helper2" />
+          </div>
+        </div>
+        <div class="pf-c-form__group">
+          <label class="pf-c-form__label" for="comments">
+            <span class="pf-c-form__label-text">Comments</span>
+          </label>
+          <div class="pf-c-form__horizontal-group">
+            <textarea class="pf-c-form-control" name="comments" id="comments"></textarea>
+          </div>
+        </div>
+        <div class="pf-c-form__group pf-m-action">
+          <div class="pf-c-form__horizontal-group">
+            <div class="pf-c-form__actions pf-c-card__footer">
+              {% if message == "Balance added!!"%}
+                <div class="pf-c-alert pf-m-success" aria-label="Success alert">
+                  <div class="pf-c-alert__icon">
+                    <i class="fas fa-check-circle" aria-hidden="true"></i>
+                  </div>
+                  <h4 class="pf-c-alert__title">
+                    <span class="pf-screen-reader">Success alert:</span>{{ message }} The total is: {{ total }}</h4>
+                </div>
+              {% elif 'Invalid' in message %}
+                <div class="pf-c-alert pf-m-warning" aria-label="Warning alert">
+                  <div class="pf-c-alert__icon">
+                    <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                  </div>
+                  <h4 class="pf-c-alert__title">
+                    <span class="pf-screen-reader">Warning alert:</span>{{ message }}</h4>
+                </div>
+              {% endif %}
+              <input class="pf-c-button pf-m-primary pf-m-block" type="submit" value="Submit Form">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

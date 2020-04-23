@@ -1,5 +1,5 @@
 def form_validate(data, form):
-    print("in form validate")
+    print(data)
     if form == 'add expense':
         mandatory_feilds = ['date','name','category','tax', 'tip', 'total']
         success_message = 'Expense added!!'
@@ -7,9 +7,11 @@ def form_validate(data, form):
         mandatory_feilds = ['date','name','benefits','tax', 'in_hand', 'total']
         success_message = 'Paycheck added!!'
     elif form == 'add bonus':
-        print("in paycheck validate")
         mandatory_feilds = ['date','name','tax', 'in_hand', 'total']
         success_message = 'Bonus added!!'
+    elif form == 'add balance':
+        mandatory_feilds = ['month','bofa1','bofa2', 'pnc', 'dcu','fidelity', 'coastal']
+        success_message = 'Balance added!!'
     invalid = []
     for feild in mandatory_feilds:
         if data[feild] == '':
